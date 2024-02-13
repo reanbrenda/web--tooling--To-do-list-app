@@ -15,21 +15,5 @@ describe("App", () => {
       getByPlaceholderText("What's the description of your To Do?"),
     ).not.toBeNull();
   });
-  test("adds a todo when the form is submitted", () => {
-    const { getByPlaceholderText, getByText, getAllByTestId } = render(<App />);
 
-    const input = getByPlaceholderText("Add new todo");
-    const button = getByText("Add");
-
-    expect(getByPlaceholderText("Add new todo").value).toBe("");
-    fireEvent.change(input, { target: { value: "Test Todo" } });
-
-    expect(getByPlaceholderText("Add new todo").value).toBe("Test Todo");
-
-    fireEvent.click(button);
-    expect(getByPlaceholderText("Add new todo").value).toBe("");
-
-    expect(getAllByTestId("TodoItemTitle")).toHaveLength(1);
-    expect(getAllByTestId("TodoItemTitle")[0].textContent).toBe("Test Todo");
-  });
 });

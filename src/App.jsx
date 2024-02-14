@@ -2,6 +2,34 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsCheckLg } from "react-icons/bs";
+
+export const TodoItem = ({
+  index,
+  title,
+  description,
+  handleToDoDelete,
+  handleComplete,
+}) => (
+  <div className="todo-list-item" key={index}>
+    <div>
+      <h3>{title}</h3>
+      <p>{description}</p>
+    </div>
+    <div>
+      <AiOutlineDelete
+        title="Delete?"
+        className="icon"
+        onClick={() => handleToDoDelete(index)}
+      />
+      <BsCheckLg
+        title="Completed?"
+        className="check-icon"
+        onClick={() => handleComplete(index)}
+      />
+    </div>
+  </div>
+);
+
 function App() {
   const [allTodos, setAllTodos] = useState([]);
   const [newTodoTitle, setNewTodoTitle] = useState("");
@@ -15,45 +43,30 @@ function App() {
       title: newTodoTitle,
       description: newDescription,
     };
-    console.log(newToDoObj);
     setAllTodos([...allTodos, newToDoObj]);
-    localStorage.setItem("todolist", JSON.stringify(updatedTodoArr));
+    localStorage.setItem("todolist", JSON.stringify([...allTodos, newToDoObj]));
     setNewDescription("");
     setNewTodoTitle("");
   };
 
   useEffect(() => {
-    let savedTodos = JSON.parse(localStorage.getItem("todolist"));
-    let savedCompletedToDos = JSON.parse(
-      localStorage.getItem("completedTodos"),
-    );
-    if (savedTodos) {
-      setAllTodos(savedTodos);
-    }
-
-    if (savedCompletedToDos) {
-      setCompletedTodos(savedCompletedToDos);
-    }
+    let savedTodos = JSON.parse(localStorage.getItem("todolist")) || [];
+    let savedCompletedToDos = JSON.parse(localStorage.getItem("completedTodos")) || [];
+    setAllTodos(savedTodos);
+    setCompletedTodos(savedCompletedToDos);
   }, []);
 
   const handleToDoDelete = (index) => {
     let reducedTodos = [...allTodos];
     reducedTodos.splice(index, 1);
-    // console.log (index);
-
-    // console.log (reducedTodos);
     localStorage.setItem("todolist", JSON.stringify(reducedTodos));
     setAllTodos(reducedTodos);
   };
 
   const handleCompletedTodoDelete = (index) => {
     let reducedCompletedTodos = [...completedTodos];
-    reducedCompletedTodos.splice(index);
-    // console.log (reducedCompletedTodos);
-    localStorage.setItem(
-      "completedTodos",
-      JSON.stringify(reducedCompletedTodos),
-    );
+    reducedCompletedTodos.splice(index, 1);
+    localStorage.setItem("completedTodos", JSON.stringify(reducedCompletedTodos));
     setCompletedTodos(reducedCompletedTodos);
   };
 
@@ -73,16 +86,9 @@ function App() {
       completedOn: finalDate,
     };
 
-    // console.log (filteredTodo);
-
     let updatedCompletedList = [...completedTodos, filteredTodo];
-    console.log(updatedCompletedList);
     setCompletedTodos(updatedCompletedList);
-    localStorage.setItem(
-      "completedTodos",
-      JSON.stringify(updatedCompletedList),
-    );
-    // console.log (index);
+    localStorage.setItem("completedTodos", JSON.stringify(updatedCompletedList));
 
     handleToDoDelete(index);
   };
@@ -138,24 +144,14 @@ function App() {
         <div className="todo-list">
           {isCompletedScreen === false &&
             allTodos.map((item, index) => (
-              <div className="todo-list-item" key={index}>
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
-                <div>
-                  <AiOutlineDelete
-                    title="Delete?"
-                    className="icon"
-                    onClick={() => handleToDoDelete(index)}
-                  />
-                  <BsCheckLg
-                    title="Completed?"
-                    className=" check-icon"
-                    onClick={() => handleComplete(index)}
-                  />
-                </div>
-              </div>
+              <TodoItem
+                key={index}
+                index={index}
+                title={item.title}
+                description={item.description}
+                handleToDoDelete={handleToDoDelete}
+                handleComplete={handleComplete}
+              />
             ))}
 
           {isCompletedScreen === true &&
@@ -165,7 +161,6 @@ function App() {
                   <h3>{item.title}</h3>
                   <p>{item.description}</p>
                   <p>
-                    {" "}
                     <i>Completed at: {item.completedOn}</i>
                   </p>
                 </div>
